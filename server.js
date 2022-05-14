@@ -35,6 +35,24 @@ async function run() {
         res.send({ success: true, booking: services })
     })
 
+    app.get('/availableService', async (req, res) => {
+        const date = req.query.date
+        console.log(date);
+        const services = await serviceCollection.find().toArray()  //all service from service collection
+        const bookings = await bookingCollection.find({ date }).toArray() // all booking form booking collection
+
+
+        services.forEach(service => {
+            const serviceBooking = bookings.filter(book => book.service === service.name)
+            const booked = serviceBooking.map(service => service.slot)
+            const available = service.slots.filter(s=> !booked.includes(s))
+            service.available = available
+        })
+
+        res.send(services)
+
+    })
+
 
 
 
